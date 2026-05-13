@@ -25,6 +25,9 @@
 
   <ItemGroup Label="Tamp packages">
     <PackageVersion Include="Tamp.Core" Version="1.7.0" />
+    <!-- Used only by the build/Build.cs dogfood script — central-package-management
+         requires every PackageReference to have a matching PackageVersion entry. -->
+    <PackageVersion Include="Tamp.NetCli.V10" Version="1.5.0" />
   </ItemGroup>
 
 </Project>
