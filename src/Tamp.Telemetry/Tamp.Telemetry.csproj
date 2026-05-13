@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <RootNamespace>Tamp.Telemetry</RootNamespace>
+    <AssemblyName>Tamp.Telemetry</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package">
+    <PackageId>Tamp.Telemetry</PackageId>
+    <Description>OpenTelemetry emit-side bridge for Tamp builds. Wraps openteleemetry-dotnet SDK setup as a one-call adopter surface — auto-registers Tamp.Core's existing ActivitySources (Tamp.Build, Tamp.Targets) + meters, configures OTLP/HTTP export with default resource attributes (service.name, host.*, ci.vendor). Bundle this once in Main and every Tamp build emits structured traces + metrics to your OTLP backend (Honeycomb / Grafana Tempo / tamp-beacon / any OTLP receiver).</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(TampCorePath)" Condition="'$(TampCoreMode)' == 'project'" />
+    <PackageReference Include="Tamp.Core" Condition="'$(TampCoreMode)' == 'package'" />
+    <PackageReference Include="OpenTelemetry" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>
