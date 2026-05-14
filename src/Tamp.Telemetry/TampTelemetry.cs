@@ -134,8 +134,8 @@ public sealed class TampTelemetry : IDisposable
 
         if (!string.IsNullOrEmpty(options.OtlpEndpoint))
         {
-            tracerBuilder.AddOtlpExporter(o => ConfigureOtlp(o, options));
-            meterBuilder.AddOtlpExporter(o => ConfigureOtlp(o, options));
+            tracerBuilder.AddOtlpExporter(o => ConfigureOtlp(o, options, "/v1/traces"));
+            meterBuilder.AddOtlpExporter(o => ConfigureOtlp(o, options, "/v1/metrics"));
         }
 
         return new TampTelemetry(tracerBuilder.Build()!, meterBuilder.Build()!);
@@ -169,9 +169,30 @@ public sealed class TampTelemetry : IDisposable
         return resource;
     }
 
-    private static void ConfigureOtlp(OpenTelemetry.Exporter.OtlpExporterOptions o, TampTelemetryOptions options)
+    private static void ConfigureOtlp(OpenTelemetry.Exporter.OtlpExporterOptions o, TampTelemetryOptions options, string signalPath)
     {
-        o.Endpoint = new Uri(options.OtlpEndpoint!);
+        var url = options.OtlpEndpoint!;
+        if (options.Protocol != OtlpProtocol.Grpc)
+        {
+            // OpenTelemetry .NET treats an explicitly-set OtlpExporterOptions.
+            // Endpoint as the full per-signal URL — AppendSignalPathToEndpoint
+            // defaults to false in that path AND is `internal` in the 1.15
+            // line (so we can't toggle it). The canonical OTel-spec behavior
+            // for OTEL_EXPORTER_OTLP_ENDPOINT (which is what TampTelemetry
+            // adopters typically pass) is to APPEND the signal-specific path
+            // /v1/traces or /v1/metrics. Do that here so traces don't ship
+            // to the bare root of the endpoint — which silently 200s through
+            // a SPA fallback like tamp-beacon's and drops every span.
+            //
+            // Only append when the URL doesn't already end with the signal
+            // path — adopters who pass the full per-signal URL via
+            // SetOtlpEndpoint should not get /v1/traces/v1/traces.
+            //
+            // gRPC dials the endpoint as-is (no HTTP path); doesn't apply.
+            if (!url.EndsWith(signalPath, StringComparison.OrdinalIgnoreCase))
+                url = url.TrimEnd('/') + signalPath;
+        }
+        o.Endpoint = new Uri(url);
         if (!string.IsNullOrEmpty(options.OtlpHeaders)) o.Headers = options.OtlpHeaders;
         o.Protocol = options.Protocol == OtlpProtocol.Grpc
             ? OpenTelemetry.Exporter.OtlpExportProtocol.Grpc

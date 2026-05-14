@@ -5,6 +5,25 @@ All notable changes to **Tamp.Telemetry** are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions follow [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] — pending
+
+### Fixed
+
+- **TAM-217 — OTLP exporter sent traces to `/` instead of `/v1/traces`.**
+  Tamp.Telemetry sets `OtlpExporterOptions.Endpoint` explicitly, which
+  causes the OpenTelemetry .NET SDK to leave `AppendSignalPathToEndpoint`
+  at its default `false` — the SDK treats the URL as already-per-signal
+  and ships every batch to the root of the configured endpoint. Adopters
+  passing `OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.x.com` (the OTel-spec
+  base-URL convention) had every export request go to
+  `POST https://otel.x.com/` instead of `POST https://otel.x.com/v1/traces`.
+  Most OTel receivers return 404 on `/`; tamp-beacon's SPA fallback
+  returned 200 + HTML, silently swallowing every trace since 0.1.0.
+  Force `AppendSignalPathToEndpoint = true` for HTTP exports; gRPC is
+  unaffected (no path append on the gRPC wire). New
+  `OtlpEndpointPathTests` spin up an in-process TCP listener and assert
+  the first HTTP request line starts with `POST /v1/traces`.
+
 ## [0.1.1] — pending
 
 ### Fixed
