@@ -5,14 +5,33 @@ All notable changes to **Tamp.Telemetry** are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions follow [SemVer](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] — pending — initial release
+## [0.1.1] — pending
+
+### Fixed
+
+- **TAM-216 — Target + Command spans were never exported.** Tamp.Core
+  emits build telemetry on three `ActivitySource`s
+  (`Tamp.Build`, `Tamp.Build.Targets`, `Tamp.Build.Commands`), but
+  `TampTelemetry.cs` only subscribed two — and one of them was a typo
+  (`Tamp.Targets` instead of `Tamp.Build.Targets`). The net effect:
+  only the top-level Build span landed at the OTLP endpoint; the
+  per-target and per-command spans (which carry the duration / GC /
+  CPU-time signal the dashboards roll up) were silently dropped.
+  Subscribed source list is now `Tamp.Build`, `Tamp.Build.Targets`,
+  `Tamp.Build.Commands` — matches `Tamp.Core/Diagnostics/TampDiagnostics.cs`.
+  Tripwire test now asserts the constant values match the documented
+  contract so a future rename surfaces as a CI failure rather than as
+  silently-missing telemetry.
+
+## [0.1.0] — 2026-05 — initial release
 
 ### Added
 
 OpenTelemetry emit-side bridge for Tamp builds. Wraps the
 `OpenTelemetry.Exporter.OpenTelemetryProtocol` SDK setup as a one-call
 adopter surface; auto-registers `Tamp.Core`'s existing ActivitySources
-(`Tamp.Build`, `Tamp.Targets`) + the `Tamp.Build` Meter.
+(`Tamp.Build`, `Tamp.Build.Targets`, `Tamp.Build.Commands`) + the
+`Tamp.Build` Meter.
 
 - **`TampTelemetry.Configure(Action<TampTelemetryOptions>)`** — fluent
   setup; returns `IDisposable` for flush-on-exit. Use when configuration

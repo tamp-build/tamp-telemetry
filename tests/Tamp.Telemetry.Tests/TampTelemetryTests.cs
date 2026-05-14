@@ -121,12 +121,26 @@ public sealed class TampTelemetryTests : IDisposable
     }
 
     [Fact]
-    public void Configured_Tracer_Subscribes_To_Tamp_Targets_ActivitySource()
+    public void Configured_Tracer_Subscribes_To_Tamp_Build_Targets_ActivitySource()
     {
         using var t = TampTelemetry.Configure(o => o.SetServiceName("test"));
 
         using var source = new ActivitySource(TampTelemetry.TargetsActivitySource);
         using var activity = source.StartActivity("test-target");
+
+        Assert.NotNull(activity);
+    }
+
+    [Fact]
+    public void Configured_Tracer_Subscribes_To_Tamp_Build_Commands_ActivitySource()
+    {
+        // TAM-216 regression — pre-fix, the Commands source was never
+        // subscribed and StartActivity returned null, dropping every
+        // command span on the floor.
+        using var t = TampTelemetry.Configure(o => o.SetServiceName("test"));
+
+        using var source = new ActivitySource(TampTelemetry.CommandsActivitySource);
+        using var activity = source.StartActivity("test-command");
 
         Assert.NotNull(activity);
     }
@@ -146,13 +160,17 @@ public sealed class TampTelemetryTests : IDisposable
     // ─── Constants match Tamp.Core's documented ActivitySource names ──
 
     [Fact]
-    public void BuildActivitySource_Constant_Matches_Tamp_Core_Convention()
+    public void ActivitySource_Constants_Match_Tamp_Core_Convention()
     {
         // ADR 0018 + Tamp.Core's TampDiagnostics define these source names.
-        // Mismatching them here would silently break trace export — keep the
-        // tripwire here so a rename surfaces as a test failure.
+        // Mismatching them here silently breaks trace export — pre-TAM-216,
+        // TargetsActivitySource was "Tamp.Targets" (wrong) and
+        // CommandsActivitySource didn't exist, which dropped ~80% of the
+        // emitted spans. Keep the tripwire here so a future rename surfaces
+        // as a test failure.
         Assert.Equal("Tamp.Build", TampTelemetry.BuildActivitySource);
-        Assert.Equal("Tamp.Targets", TampTelemetry.TargetsActivitySource);
+        Assert.Equal("Tamp.Build.Targets", TampTelemetry.TargetsActivitySource);
+        Assert.Equal("Tamp.Build.Commands", TampTelemetry.CommandsActivitySource);
         Assert.Equal("Tamp.Build", TampTelemetry.BuildMeter);
     }
 

@@ -7,10 +7,11 @@ namespace Tamp.Telemetry;
 
 /// <summary>
 /// Adopter entry point for routing Tamp's build diagnostics (the
-/// <c>Tamp.Build</c> and <c>Tamp.Targets</c> ActivitySources + meters
-/// defined in <c>Tamp.Core</c>) through OpenTelemetry to any OTLP-speaking
-/// backend — Honeycomb, Grafana Tempo / Mimir, Jaeger, self-hosted
-/// tamp-beacon, etc.
+/// <c>Tamp.Build</c>, <c>Tamp.Build.Targets</c>, <c>Tamp.Build.Commands</c>
+/// ActivitySources + the <c>Tamp.Build</c> Meter defined in
+/// <c>Tamp.Core</c>) through OpenTelemetry to any OTLP-speaking backend
+/// — Honeycomb, Grafana Tempo / Mimir, Jaeger, self-hosted tamp-beacon,
+/// etc.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -45,9 +46,10 @@ namespace Tamp.Telemetry;
 /// </remarks>
 public sealed class TampTelemetry : IDisposable
 {
-    /// <summary>The two ActivitySources Tamp.Core defines (ADR 0018).</summary>
+    /// <summary>The three ActivitySources Tamp.Core defines (ADR 0018).</summary>
     public const string BuildActivitySource = "Tamp.Build";
-    public const string TargetsActivitySource = "Tamp.Targets";
+    public const string TargetsActivitySource = "Tamp.Build.Targets";
+    public const string CommandsActivitySource = "Tamp.Build.Commands";
 
     /// <summary>The Meter Tamp.Core defines for build-level counters/histograms.</summary>
     public const string BuildMeter = "Tamp.Build";
@@ -124,7 +126,7 @@ public sealed class TampTelemetry : IDisposable
 
         var tracerBuilder = Sdk.CreateTracerProviderBuilder()
             .SetResourceBuilder(resource)
-            .AddSource(BuildActivitySource, TargetsActivitySource);
+            .AddSource(BuildActivitySource, TargetsActivitySource, CommandsActivitySource);
 
         var meterBuilder = Sdk.CreateMeterProviderBuilder()
             .SetResourceBuilder(resource)
