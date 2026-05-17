@@ -7,8 +7,10 @@ versions follow [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [0.1.2] — 2026-05-16
 
-Single-version release covering two silent-data-loss fixes against 0.1.0.
-Version 0.1.1 was never tagged ; both fixes ship together as 0.1.2.
+Covers both silent-data-loss fixes against 0.1.0 / 0.1.1. The TAM-216 fix
+shipped earlier as `Tamp.Telemetry 0.1.1` via an untagged workflow_dispatch
+release ; 0.1.2 is the first version with TAM-217 and is the recommended
+upgrade for every adopter on 0.1.x.
 
 ### Fixed
 
