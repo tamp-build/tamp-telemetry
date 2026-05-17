@@ -5,7 +5,10 @@ All notable changes to **Tamp.Telemetry** are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions follow [SemVer](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.2] — pending
+## [0.1.2] — 2026-05-16
+
+Single-version release covering two silent-data-loss fixes against 0.1.0.
+Version 0.1.1 was never tagged ; both fixes ship together as 0.1.2.
 
 ### Fixed
 
@@ -23,10 +26,6 @@ versions follow [SemVer](https://semver.org/spec/v2.0.0.html).
   unaffected (no path append on the gRPC wire). New
   `OtlpEndpointPathTests` spin up an in-process TCP listener and assert
   the first HTTP request line starts with `POST /v1/traces`.
-
-## [0.1.1] — pending
-
-### Fixed
 
 - **TAM-216 — Target + Command spans were never exported.** Tamp.Core
   emits build telemetry on three `ActivitySource`s
