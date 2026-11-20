@@ -43,7 +43,7 @@ That's it. Set `OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.example.com/v1/traces` 
 dotnet add package Tamp.Telemetry
 ```
 
-Multi-targets `net8.0 / net9.0 / net10.0`. Requires `Tamp.Core >= 1.7.0`.
+Multi-targets `net10.0 / net11.0`. Requires `Tamp.Core >= 1.21.0`.
 
 ## Configure modes
 
