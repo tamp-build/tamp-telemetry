@@ -25,6 +25,7 @@
 
   <ItemGroup Label="Tamp packages">
     <PackageVersion Include="Tamp.Core" Version="1.21.0" />
+    <PackageVersion Include="Tamp.SonarScanner.V10" Version="0.4.0" />
     <PackageVersion Include="Tamp.Telegram" Version="0.1.0" />
     <!-- Used only by the build/Build.cs dogfood script — central-package-management
          requires every PackageReference to have a matching PackageVersion entry. -->
